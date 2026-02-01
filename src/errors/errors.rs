@@ -38,7 +38,7 @@ pub enum VshError{
     },
     #[error("Resource error occurred:{message}, Resource:{resource}")]
     ResourceError { resource: &'static str, message: String },
-    // Can Used For Monitoring
+    // Used For Monitoring
     // MetricsError { message: String },
 }
 
