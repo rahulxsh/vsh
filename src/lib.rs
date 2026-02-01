@@ -1,14 +1,19 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+pub mod errors;
+pub mod kvm;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+use std::error::Error;
+use kvm::system::Kvm;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+fn open_kvm_file(){
+    let kvm = Kvm::open();
+    
+    match kvm { 
+        Ok(d) =>{
+            println!("FD is : {}",d.fd());
+        },
+        Err(e) =>{
+            println!("Error: {}",e.to_string());
+            println!("Source: {:?}",e.source());
+        }
     }
 }
