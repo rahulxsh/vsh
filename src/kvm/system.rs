@@ -7,6 +7,12 @@ pub struct Kvm {
     kvm_fd:RawFd
 }
 
+impl Drop for Kvm {
+    fn drop(&mut self) {
+        unsafe { close(self.kvm_fd)};
+    }
+}
+
 const KVMIO:u32 = 0xAE;
 
 
@@ -25,7 +31,9 @@ const KVM_GET_API_VERSION:u64 = _IO!(KVMIO,0x00) as u64;
 
 impl Kvm {
     pub fn open() -> Result<Self,VshError> {
-        let path = CString::new("/dev/kvm").expect("Operation: Creating C String Failed");
+        let path = CString::new("/dev/kvm").map_err(|_| VshError::ConfigError{
+            message:"Invalid character in KVM device path.".into()
+        })?;
         let kvm_fd = unsafe { open(path.as_ptr(),O_RDWR) };
 
         if kvm_fd < 0 {

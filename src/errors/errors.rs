@@ -14,7 +14,7 @@ pub enum VshError{
     },
     #[error("Invalid Configuration: {message}")]
     ConfigError {
-        message: String
+        message: String,
     },
     #[error("Invalid VM State:{current:?} attempted: {attempted}")]
     InvalidVmState {
@@ -42,6 +42,8 @@ pub enum VshError{
     // MetricsError { message: String },
     #[error("KVM API version mismatch: expected 12, got {0}")]
     KvmVersionMismatch(i32),
+    #[error("IO Error: {0}")]
+    Io(#[from] std::io::Error),
 }
 
 
