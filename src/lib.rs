@@ -9,7 +9,7 @@ fn open_kvm_file(){
     
     match kvm { 
         Ok(d) =>{
-            println!("FD is : {}",d.fd());
+            println!("FD is : {}",d.get_kvm_fd());
         },
         Err(e) =>{
             println!("Error: {}",e.to_string());
