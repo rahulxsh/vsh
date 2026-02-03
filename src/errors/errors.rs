@@ -40,6 +40,8 @@ pub enum VshError{
     ResourceError { resource: &'static str, message: String },
     // Used For Monitoring
     // MetricsError { message: String },
+    #[error("KVM API version mismatch: expected 12, got {0}")]
+    KvmVersionMismatch(i32),
 }
 
 
