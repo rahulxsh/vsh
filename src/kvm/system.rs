@@ -13,10 +13,10 @@ impl Drop for Kvm {
     }
 }
 
-const KVMIO:u32 = 0xAE;
+const KVM_IO:u32 = 0xAE;
 
 
-macro_rules! _IO {
+macro_rules! _io {
     ($type:expr, $n:expr) => {
         // In the Linux kernel, _IO is (type << 8) | nr
         ($type << 8 ) | $n
@@ -27,7 +27,7 @@ macro_rules! _IO {
  KVM_GET_API_VERSION = (Type: 0xAE << 8) | (Number: 0x00);
  packs the KVM magic 'S' and command index into a 32-bit ioctl code.
  */
-const KVM_GET_API_VERSION:u64 = _IO!(KVMIO,0x00) as u64;
+const KVM_GET_API_VERSION:u64 = _io!(KVM_IO,0x00) as u64;
 
 impl Kvm {
     pub fn open() -> Result<Self,VshError> {
