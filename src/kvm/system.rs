@@ -1,7 +1,7 @@
-use std::ffi::{CString};
+use std::ffi::{c_void, CString};
 use std::io::Error;
 use std::os::fd::RawFd;
-use libc::{c_int, close, ioctl, open, O_RDWR};
+use libc::{c_int, close, ioctl, open, read, O_RDWR};
 use crate::errors::VshError;
 pub struct Kvm {
     kvm_fd:RawFd
@@ -79,6 +79,44 @@ impl Kvm {
 
         self.kvm_fd = -1;
         return Ok(());
+    }
+
+    pub fn read_all(&self) -> Result<Vec<u8>,VshError> {
+        let fd = self.kvm_fd;
+
+        if fd < 0 {
+            return Err(VshError::OsError {
+                syscall:"read",
+                source:Error::from_raw_os_error(libc::EBADF)
+                // EBADF -> Error:Bad File Descriptor
+            })
+        }
+
+        let mut buf = [0u8;4096];
+        let mut data:Vec<u8> = Vec::new();
+
+        loop {
+            let ret = unsafe {
+                read(fd,buf.as_mut_ptr() as *mut c_void,buf.len())
+            };
+
+            if ret < 0 {
+                return Err(VshError::OsError {
+                    syscall:"read",
+                    source:Error::last_os_error()
+                })
+            }
+
+            if ret == 0 {
+                break;
+                //Read Over
+            }
+
+            let bytes_read = ret as usize;
+            data.extend_from_slice(&buf[..bytes_read]);
+        }
+        
+        Ok(data)
     }
 
     pub fn get_kvm_fd(&self) -> RawFd {
