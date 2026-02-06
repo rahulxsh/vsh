@@ -16,6 +16,7 @@ impl Drop for Kvm {
 const KVM_IO:u32 = 0xAE;
 
 
+// Important: This macro is only build for KVM_GET_API_VERSION it dosen't relate to C IO macro
 macro_rules! _io {
     ($type:expr, $n:expr) => {
         // In the Linux kernel, _IO is (type << 8) | nr
@@ -60,28 +61,8 @@ impl Kvm {
             kvm_fd
         })
     }
-
-    pub fn close(&mut self) -> Result<(),VshError> {
-        let fd:RawFd = self.get_kvm_fd();
-
-        if fd < 0 {
-            // Already Closed
-            return Ok(());
-        }
-        let close_status_number:c_int = unsafe { close(fd)};
-
-        if close_status_number < 0 {
-            return Err(VshError::OsError {
-                syscall: "close",
-                source:Error::last_os_error()
-            });
-        };
-
-        self.kvm_fd = -1;
-        return Ok(());
-    }
-
-    pub fn read_all(&self) -> Result<Vec<u8>,VshError> {
+    
+    pub fn read(&self) -> Result<Vec<u8>,VshError> {
         let fd = self.kvm_fd;
 
         if fd < 0 {
